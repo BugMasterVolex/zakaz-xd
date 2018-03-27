@@ -294,13 +294,24 @@ function findAllOrders(page, searchParameters, callback) {
 	if (deliveryDateFilter) {
 		filter.deliveryDate = deliveryDateFilter;	
 	}	
-	
-	var createdDateFilter = createDateRangeFilter(searchParameters.createdDate.start,
-		   	searchParameters.createdDate.end);
-	if (createdDateFilter) {
-		filter.createdDate = createdDateFilter;	
-	}
-    findAllOrdersByFilter(page, filter, callback);
+
+    var createdDateFilter = createDateRangeFilter(searchParameters.createdDate.start,
+        searchParameters.createdDate.end);
+    if (createdDateFilter) {
+        filter.createdDate = createdDateFilter;
+    }
+    if (searchParameters.status_id) {
+        orderStatusService.findOneByCode(searchParameters.status_id.code, function (err, result) {
+            if (err) {
+                return callback(new Error("Статус неопределен " + searchParameters.status_id.code));
+            }
+            filter.status_id = result._id;
+            findAllOrdersByFilter(page, filter, callback);
+        });
+
+    } else {
+        findAllOrdersByFilter(page, filter, callback);
+    }
 }
 
 function findAllOrdersByAuthorId(page, authorId, searchParameters, callback) {
@@ -342,6 +353,12 @@ function findOneOrderByFilter(filter, callback) {
 
 function findOneByIdAndAuthorId(id, authorId, callback) {
     findOneOrderByFilter({_id: id, author_id: authorId}, callback);
+}
+
+//для поиска заказов от клиента с одним номером в пределах года
+function findOneByYearAndNumberAndAuthorId(item, callback) {
+    findOneOrderByFilter({createdDate:{ $gt: new Date(item.createdDate.getFullYear(),0),
+    $lte: new Date(item.createdDate.getFullYear()+1,0)}, author_id: item.author_id, number: item.number}, callback);
 }
 
 function findOneById(id, callback) {
@@ -552,6 +569,7 @@ exports.createOrder = createOrder;
 exports.deleteOrder = deleteOrder;
 exports.editOrder = editOrder;
 exports.changeOrderStatus = changeOrderStatus;
+exports.findOneByYearAndNumberAndAuthorId = findOneByYearAndNumberAndAuthorId;
 
 // order product
 exports.removeOrderProduct = removeOrderProduct;

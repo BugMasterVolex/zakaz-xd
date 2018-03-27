@@ -122,11 +122,17 @@ router.post('/create-order', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_OR
         return next(new HttpError(400, "Дата доставки не может быть меньше текущей даты"));
     }
 
-    orderService.createOrder(order, function(err, newOrder) {
-        if (err)
-            return next(err);
+    orderService.findOneByYearAndNumberAndAuthorId(order, function (err, foundOrder) {
+        if (foundOrder)
+            return next(new HttpError(400, "Документ с таким номером уже создавался в этом году"));
 
-        res.send(order);
+
+        orderService.createOrder(order, function (err, newOrder) {
+            if (err)
+                return next(err);
+
+            res.send(order);
+        });
     });
 });
 

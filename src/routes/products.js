@@ -80,7 +80,7 @@ router.post('/create-product', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_
         if (err)
             return next(err);
 
-        res.send({});
+        res.send(newProduct);
     });
 });
 

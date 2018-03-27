@@ -95,7 +95,7 @@ function enrichmentUserProducts(items, callback) {
     });
 }
 
-function findAllUserProductsByFilter(page, filter, callback) {
+function findAllUserProductsByFilter(page, filter, callback, needenrichment) {
     var coll = getCollection();
     var conf = {
         sort: {priceDate: 1}
@@ -109,23 +109,26 @@ function findAllUserProductsByFilter(page, filter, callback) {
             return callback(err);
         }
 
-        enrichmentUserProducts(items, function(err, eItems) {
-            if (err) {
-                return callback(err);
-            }
+        if (needenrichment === undefined) {
+            enrichmentUserProducts(items, function (err, eItems) {
+                if (err) {
+                    return callback(err);
+                }
 
-            if (page) {
-                coll.find(filter).count(function(err, count) {
-                    if (err) {
-                        return callback(err);
-                    }
-                    return callback(null, {count: count, items: eItems});
-                });
-            } else {
-                return callback(null, eItems);
-            }
-        });
-    });
+                if (page) {
+                    coll.find(filter).count(function (err, count) {
+                        if (err) {
+                            return callback(err);
+                        }
+                        return callback(null, { count: count, items: eItems });
+                    });
+                } else {
+                    return callback(null, eItems);
+                }
+            });
+        }
+        else {return callback(null, items);}
+       });
 }
 
 function findOneUserProductByFilter(filter, callback) {
@@ -153,6 +156,10 @@ function findUserProductsByProductId(page, productId, callback) {
     findAllUserProductsByFilter(page, {product_id: productId}, callback);
 }
 
+//полный список пользователь&продукт
+function findAllUserAllProducts(page, callback) {
+    findAllUserProductsByFilter(page, {}, callback,true);
+}
 /**
  * список продуктов указанного пользователя
  */
@@ -186,6 +193,7 @@ function deleteUserProduct(id, callback) {
 exports.getCollection = getCollection;
 exports.createUserProducts = createUserProducts;
 exports.editUserProduct = editUserProduct;
+exports.findAllUserAllProducts = findAllUserAllProducts;														
 exports.findUserProductsByProductId = findUserProductsByProductId;
 exports.findUserProductsByUserId = findUserProductsByUserId;
 exports.findOneById = findOneById;

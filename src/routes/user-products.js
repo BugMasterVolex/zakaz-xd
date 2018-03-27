@@ -24,6 +24,16 @@ router.get('/product-users-by-product-id', loadUser, checkAccess.getAuditor(ACCE
     );
 });
 
+router.get('/product-alluser-allid', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_PRODUCTS | ACCESSES.MANAGE_ORDERS), function(req, res, next) {
+    userProductService.findAllUserAllProducts(null, function(err, result) {
+            if (err) {
+                return next(err);
+            }
+            res.json(result);
+        }
+    );
+});
+
 router.get('/product-users-by-current-user', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_PRODUCTS | ACCESSES.MANAGE_ORDERS | ACCESSES.EDIT_OWN_ORDER), function(req, res, next) {
     userProductService.findUserProductsByUserId(null, req.user._id, function(err, result) {
             if (err) {
@@ -60,7 +70,7 @@ router.post('/create-user-product', loadUser, checkAccess.getAuditor(ACCESSES.MA
         if (err)
             return next(err);
 
-        res.send({});
+        res.send(newUserProduct);
     });
 });
 
