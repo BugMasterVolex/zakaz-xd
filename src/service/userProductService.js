@@ -95,7 +95,7 @@ function enrichmentUserProducts(items, callback) {
     });
 }
 
-function findAllUserProductsByFilter(page, filter, callback, needenrichment) {
+function findAllUserProductsByFilter(page, filter, isEnrichment, callback) {
     var coll = getCollection();
     var conf = {
         sort: {priceDate: 1}
@@ -109,7 +109,7 @@ function findAllUserProductsByFilter(page, filter, callback, needenrichment) {
             return callback(err);
         }
 
-        if (needenrichment === undefined) {
+        if (isEnrichment) {
             enrichmentUserProducts(items, function (err, eItems) {
                 if (err) {
                     return callback(err);
@@ -127,7 +127,9 @@ function findAllUserProductsByFilter(page, filter, callback, needenrichment) {
                 }
             });
         }
-        else {return callback(null, items);}
+        else {
+            return callback(null, items);
+        }
        });
 }
 
@@ -153,18 +155,18 @@ function findOneUserProductByFilter(filter, callback) {
 }
 
 function findUserProductsByProductId(page, productId, callback) {
-    findAllUserProductsByFilter(page, {product_id: productId}, callback);
+    findAllUserProductsByFilter(page, {product_id: productId}, true,callback);
 }
 
 //полный список пользователь&продукт
 function findAllUserAllProducts(page, callback) {
-    findAllUserProductsByFilter(page, {}, callback,true);
+    findAllUserProductsByFilter(page, {}, false,callback);
 }
 /**
  * список продуктов указанного пользователя
  */
 function findUserProductsByUserId(page, userId, callback) {
-    findAllUserProductsByFilter(page, {user_id: userId}, callback);
+    findAllUserProductsByFilter(page, {user_id: userId}, true,callback);
 }
 
 function findOneByProductIdAndUserId(productId, userId, callback) {

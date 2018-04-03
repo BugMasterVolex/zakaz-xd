@@ -368,16 +368,36 @@ function runChangelogs(callback) {
         new OrderStatus(ORDER_STATUSES.CLOSED, 'Закрыт')
     ]));
 
-	//Нельзя вводить ограничение номера заказа индексом, не позволит иметь одинаковые номера заказа у разных
-    //клиентов, неоходимо создать механизм контроля номра заказа клиента в рамках года
-    //будем считать что номер заказа уникален в связке клиент&год
-    /*changesets.push({
+	
+    changesets.push({
         changeId: 22,
         changeFn: function(changeCallback) {
             var coll = orderService.getCollection();
             coll.createIndex( { "number": 1 }, { unique: true }, changeCallback);
         }
-    });*/
+    });
+
+    //Нельзя вводить ограничение номера заказа индексом, не позволит иметь 
+    //одинаковые номера заказа у разных клиентов, неоходимо создать механизм 
+    //контроля номера заказа клиента в рамках года будем считать что номер 
+    //заказа уникален в связке клиент&год
+
+    changesets.push({
+        changeId: 23,
+        changeFn: function(changeCallback) {
+            var coll = orderService.getCollection();
+            coll.dropIndex( "number", changeCallback);
+        }
+    });
+
+    //Но индекс все же нужен по полю number
+    changesets.push({
+        changeId: 24,
+        changeFn: function(changeCallback) {
+            var coll = orderService.getCollection();
+            coll.createIndex( { "number": 1 }, null, changeCallback);
+        }
+    });
 
     changelog.executeAllChangesets(changesets, callback);
 }

@@ -24,7 +24,7 @@ router.get('/product-users-by-product-id', loadUser, checkAccess.getAuditor(ACCE
     );
 });
 
-router.get('/product-alluser-allid', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_PRODUCTS | ACCESSES.MANAGE_ORDERS), function(req, res, next) {
+router.get('/all-product-users', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_PRODUCTS | ACCESSES.MANAGE_ORDERS), function(req, res, next) {
     userProductService.findAllUserAllProducts(null, function(err, result) {
             if (err) {
                 return next(err);

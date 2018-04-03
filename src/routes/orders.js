@@ -123,8 +123,10 @@ router.post('/create-order', loadUser, checkAccess.getAuditor(ACCESSES.MANAGE_OR
     }
 
     orderService.findOneByYearAndNumberAndAuthorId(order, function (err, foundOrder) {
-        if (foundOrder)
-            return next(new HttpError(400, "Документ с таким номером уже создавался в этом году"));
+        if (err)
+                 return next(err);
+         if (foundOrder)
+             return next(new HttpError(400, "Документ с таким номером уже создавался в этом году"));
 
 
         orderService.createOrder(order, function (err, newOrder) {

@@ -303,7 +303,7 @@ function findAllOrders(page, searchParameters, callback) {
     if (searchParameters.status_id) {
         orderStatusService.findOneByCode(searchParameters.status_id.code, function (err, result) {
             if (err) {
-                return callback(new Error("Статус неопределен " + searchParameters.status_id.code));
+                return callback(err);
             }
             filter.status_id = result._id;
             findAllOrdersByFilter(page, filter, callback);
